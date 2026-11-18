@@ -1,0 +1,30 @@
+{% import "partials/marca.html" as marca %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="robots" content="noindex">
+  <title>Página no encontrada | AutoValor Pro Colombia</title>
+  <link rel="icon" type="image/svg+xml" href="/static/img/icono-autovalor.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32.png">
+  <script src="/static/js/theme.js"></script>
+  <link rel="stylesheet" href="/static/css/fonts.css">
+  <link rel="stylesheet" href="/static/css/home.css?v=20261029">
+</head>
+<body class="home page-404">
+  {{ marca.sprite() }}
+  <header class="site-header wrap">
+    <a class="brand" href="/" aria-label="AutoValor Colombia, inicio">{{ marca.logo() }}</a>
+  </header>
+  <main class="wrap not-found">
+    <div class="plate plate-404" aria-hidden="true">
+      <div class="plate-value">404</div>
+      <p class="plate-caption">Página no encontrada</p>
+    </div>
+    <h1>Esta página no existe</h1>
+    <p>La dirección está mal escrita o la página cambió de lugar.</p>
+    <a class="button-plate button-inline" href="/"><span>Ir a la consulta</span></a>
+  </main>
+</body>
+</html>

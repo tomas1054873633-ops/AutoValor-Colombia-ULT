@@ -1,0 +1,233 @@
+{% import "partials/marca.html" as marca %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Consulta orientativa del valor de tu vehículo en Colombia, con el ajuste por kilometraje explicado paso a paso.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f1f2ef" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#15181c" media="(prefers-color-scheme: dark)">
+  <title>AutoValor Pro Colombia | Cuánto vale tu carro, y por qué</title>
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:site_name" content="AutoValor Pro Colombia">
+  <meta property="og:title" content="Cuánto vale tu carro, y por qué | AutoValor Pro">
+  <meta property="og:description" content="Valoración orientativa de tu vehículo con el ajuste por kilometraje explicado paso a paso.">
+  <meta property="og:url" content="{{ request.base_url }}">
+  <meta property="og:image" content="{{ request.base_url }}static/img/og-autovalor.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="/static/img/icono-autovalor.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/img/icon-192.png">
+  <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
+  <link rel="preload" href="/static/fonts/big-shoulders-700.woff" as="font" type="font/woff" crossorigin>
+  <script src="/static/js/theme.js"></script>
+  <link rel="stylesheet" href="/static/css/fonts.css">
+  <link rel="stylesheet" href="/static/css/home.css?v=20261029">
+</head>
+<body class="home">
+  {{ marca.sprite() }}
+  <a class="skip-link" href="#calculator-form">Ir al formulario</a>
+
+  <header class="site-header wrap">
+    <a class="brand" href="/" aria-label="AutoValor Colombia, inicio">{{ marca.logo() }}</a>
+    <nav class="site-nav" aria-label="Secciones">
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#preguntas">Preguntas</a>
+      <a href="#alcance">Qué tener en cuenta</a>
+    </nav>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Cambiar a modo oscuro">
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title"><span>Cuánto vale</span> <span>tu carro,</span> <span>y por qué.</span></h1>
+        <p class="hero-lede">Elige la versión exacta y escribe el kilometraje. Te mostramos la valoración y cuánto cambia por el kilometraje, paso a paso.</p>
+        {% if values_date_label %}
+        <p class="hero-source">Valores de referencia actualizados al {{ values_date_label }}.</p>
+        {% endif %}
+      </div>
+
+      <ol class="hero-steps" id="como-funciona" aria-label="Cómo funciona">
+        <li><strong>Elige la versión exacta</strong><span>Marca, línea, año, motor, transmisión y versión, tal como existen en el catálogo.</span></li>
+        <li><strong>Comparamos tu kilometraje</strong><span>Frente al esperado para la edad del vehículo{% if km_per_year_label %}: {{ km_per_year_label }} km por año{% endif %}.</span></li>
+        <li><strong>Calculamos la valoración</strong><span>Partimos del valor de referencia de esa versión y año, y lo ajustamos por kilometraje de forma gradual y con topes. Si no hay valor de referencia, no inventamos la cifra.</span></li>
+      </ol>
+
+      <div class="form-card">
+        <svg class="sello" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+          <defs><path id="sello-arco" d="M15 60a45 45 0 1 1 90 0a45 45 0 1 1-90 0"/></defs>
+          <circle class="sello-fondo" cx="60" cy="60" r="57"/>
+          <circle class="sello-anillo" cx="60" cy="60" r="39.5"/>
+          <text class="sello-borde"><textPath href="#sello-arco" textLength="281" lengthAdjust="spacing">SIN REGISTRO • NO PEDIMOS LA PLACA •</textPath></text>
+          <text class="sello-centro" x="60" y="70.5" text-anchor="middle">GRATIS</text>
+        </svg>
+        <h2 class="form-title">Datos del vehículo</h2>
+        <form id="calculator-form" novalidate>
+          <fieldset class="field-group">
+            <legend class="sr-only">Identificación del vehículo</legend>
+            <div class="field">
+              <label for="brand-select">Marca</label>
+              <select id="brand-select" name="brand_id" required>
+                <option value="">Cargando marcas…</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="model-select">Línea o modelo</label>
+              <select id="model-select" name="model_id" required disabled>
+                <option value="">Primero elige una marca</option>
+              </select>
+            </div>
+            <div class="field field-year">
+              <label for="year-select">Año modelo</label>
+              <select id="year-select" required disabled><option value="">Elige el año</option></select>
+            </div>
+            <div class="field field-engine">
+              <label for="engine-select">Motor</label>
+              <select id="engine-select" required disabled><option value="">Elige el motor</option></select>
+            </div>
+            <div class="field field-wide">
+              <label for="transmission-select">Transmisión</label>
+              <select id="transmission-select" required disabled><option value="">Elige la transmisión</option></select>
+            </div>
+            <div class="field field-wide">
+              <label for="version-select">Versión</label>
+              <select id="version-select" required disabled><option value="">Elige la versión</option></select>
+            </div>
+          </fieldset>
+          <div class="field field-km">
+            <label for="mileage-input">Kilometraje actual</label>
+            <div class="input-suffix">
+              <input id="mileage-input" type="number" min="0" step="1" inputmode="numeric" placeholder="Ej. 85000" required aria-describedby="km-help">
+              <span aria-hidden="true">km</span>
+            </div>
+            <small class="field-help" id="km-help">Solo números, sin puntos ni comas.</small>
+          </div>
+          <button id="btn-estimate" class="button-plate" type="submit"><span>Consultar valor de mi vehículo</span></button>
+          <div id="form-message" class="inline-message" role="status" aria-live="polite"></div>
+          <p class="privacy-note">No pedimos placa, matrícula ni datos personales.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="result-section" id="result-section" aria-live="polite" aria-label="Resultado de la consulta" hidden>
+      <div class="wrap result-panel" id="result-panel" tabindex="-1"></div>
+    </section>
+
+    {%- set cinta = ["AutoValor Colombia", "Consulta gratis", "Sin registro", "Sin pedir la placa", "El kilometraje, explicado paso a paso"] %}
+    {%- if values_date_label %}{% set cinta = cinta + ["Valores al " ~ values_date_label] %}{% endif %}
+    <section class="cinta-zona" aria-label="AutoValor Colombia en pocas palabras">
+      <div class="cinta" id="cinta">
+        <div class="cinta-pista">
+          {%- for copia in range(4) %}
+          <ul class="cinta-lista"{% if copia %} aria-hidden="true"{% endif %}>
+            {%- for texto in cinta %}<li>{{ texto }}</li>{% endfor -%}
+          </ul>
+          {%- endfor %}
+        </div>
+        <button type="button" class="cinta-pausa" id="cinta-pausa" aria-pressed="false" aria-label="Pausar la cinta">
+          <svg class="icon-pausa" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13M16 5.5v13"/></svg>
+          <svg class="icon-seguir" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.8v12.4L18.6 12z"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <section class="valla" id="valla" aria-labelledby="valla-title">
+      <div class="valla-ciudad" aria-hidden="true"></div>
+      <div class="wrap valla-escena">
+        <div class="valla-estructura">
+          <div class="valla-lamparas" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="valla-tablero">
+            <div class="valla-logo">{{ marca.logo(relieve=True) }}</div>
+            <div class="valla-texto">
+              <h2 id="valla-title">Antes de vender o comprar carro, <span>consulta AutoValor.</span></h2>
+              <p class="valla-bajada">La versión exacta, su valor de referencia y cuánto lo cambia el kilometraje, explicado paso a paso.</p>
+              <a class="button-plate valla-cta" href="#calculator-form"><span>Consultar el valor de mi carro</span></a>
+            </div>
+            {%- if catalog %}
+            <dl class="valla-cifras">
+              <div><dt>marcas</dt><dd>{{ catalog.brands_label }}</dd></div>
+              <div><dt>líneas</dt><dd>{{ catalog.models_label }}</dd></div>
+              {%- if catalog.years_label %}<div><dt>años modelo</dt><dd>{{ catalog.years_label }}</dd></div>{% endif %}
+              <div><dt>costo de la consulta</dt><dd>$&nbsp;0</dd></div>
+            </dl>
+            {%- endif %}
+          </div>
+          <div class="valla-postes" aria-hidden="true"><span></span><span></span></div>
+        </div>
+      </div>
+      <div class="valla-via" aria-hidden="true"><div class="valla-carro" id="valla-carro"></div></div>
+    </section>
+
+    <section class="faq wrap" id="preguntas" aria-labelledby="faq-title">
+      <h2 id="faq-title">Preguntas frecuentes</h2>
+      <div class="faq-list">
+        <details>
+          <summary>¿Qué es el valor de referencia?</summary>
+          <p>Es el valor de mercado de esa versión y año modelo para un carro en buen estado y con el kilometraje esperado para su edad. Sobre ese valor aplicamos el ajuste por kilometraje.</p>
+        </details>
+        <details>
+          <summary>¿Por qué el kilometraje cambia el valor?</summary>
+          <p>Un carro que ha recorrido más de lo normal para su edad tiene más desgaste. Comparamos tu kilometraje con el esperado{% if km_per_year_label %} ({{ km_per_year_label }} km por año){% endif %}: cerca de lo esperado no cambia nada; si tiene más, el valor baja poco a poco{% if penalty_cap_label %}, hasta un {{ penalty_cap_label }}&nbsp;%{% endif %}; si tiene menos, sube{% if bonus_cap_label %} hasta un {{ bonus_cap_label }}&nbsp;%{% endif %}.</p>
+        </details>
+        <details>
+          <summary>¿Por qué en los clasificados piden más por un carro como el mío?</summary>
+          <p>Los anuncios muestran lo que pide el vendedor, no el precio final de la venta, que suele cerrarse más abajo después de negociar. Además, cada anuncio depende del estado, los accesorios y la urgencia de quien vende.</p>
+        </details>
+        <details>
+          <summary>¿Qué no tiene en cuenta la valoración?</summary>
+          <p>El estado mecánico y de la carrocería, los accidentes, el color, los accesorios, la documentación y la ciudad de venta. Para una cifra definitiva hace falta un peritaje.</p>
+        </details>
+        <details>
+          <summary>¿Por qué algunas versiones dicen «sin valoración disponible»?</summary>
+          <p>Porque no tenemos un valor de referencia para esa versión y año. En ese caso preferimos no mostrar una cifra antes que inventarla. Prueba con un año o una versión cercana.</p>
+        </details>
+        <details>
+          <summary>¿Guardan mis datos?</summary>
+          <p>No pedimos placa, matrícula ni datos personales, y no guardamos tus consultas. Tu navegador solo recuerda si prefieres el modo claro u oscuro.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="limits wrap" id="alcance" aria-labelledby="alcance-title">
+      <h2 id="alcance-title">Qué tener en cuenta</h2>
+      <div class="limits-grid">
+        <div>
+          <h3>Cómo influye el kilometraje</h3>
+          <p>Comparamos el kilometraje con el esperado para la edad del carro{% if km_per_year_label %} ({{ km_per_year_label }} km por año){% endif %}. Cerca de lo esperado, el valor no cambia. Si tiene más, baja de forma gradual{% if penalty_cap_label %} hasta un máximo de {{ penalty_cap_label }}&nbsp;%{% endif %}; si tiene menos, sube{% if bonus_cap_label %} hasta un {{ bonus_cap_label }}&nbsp;%{% endif %}.</p>
+        </div>
+        <div>
+          <h3>Qué no se evalúa</h3>
+          <p>El estado mecánico, los accidentes, la documentación ni la ciudad de venta. Los valores de referencia corresponden al mercado de Bogotá, con vehículos en buen estado.</p>
+        </div>
+        <div>
+          <h3>Qué significa la cifra</h3>
+          <p>Es una valoración orientativa de AutoValor, no un avalúo ni una tasación oficial. El ajuste por kilometraje usa parámetros iniciales que aún no están calibrados con ventas reales.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        {{ marca.logo(label="AutoValor Colombia") }}
+        <p class="footer-lema"><span>El valor de tu carro,</span> <span>explicado.</span></p>
+      </div>
+      <nav class="footer-nav" aria-label="Enlaces del pie de página">
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#preguntas">Preguntas</a>
+        <a href="#alcance">Qué tener en cuenta</a>
+      </nav>
+      <p class="footer-note">AutoValor Pro es una herramienta independiente: no está afiliada, patrocinada ni respaldada por ninguna marca ni concesionario. Los valores son orientativos, pueden cambiar y no representan necesariamente el precio final de una venta.</p>
+    </div>
+  </footer>
+  <script src="/static/js/app.js?v=20261029" defer></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+/* Tipografías incluidas en la aplicación (SIL Open Font License 1.1; licencias en /static/fonts).
+   Se sirven localmente para que la página funcione sin conexión y sin solicitudes a terceros. */
+@font-face {
+  font-family: "Big Shoulders";
+  src: url("/static/fonts/big-shoulders-700.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("/static/fonts/instrument-sans-400.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("/static/fonts/instrument-sans-400-italic.woff") format("woff");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("/static/fonts/instrument-sans-700.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

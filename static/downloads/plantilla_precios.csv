@@ -1,0 +1,135 @@
+# AutoValor Pro Colombia
+
+Aplicación local para que las personas consulten una estimación orientativa del valor de un vehículo propio o que desean comprar. No es un concesionario ni una plataforma de publicación de vehículos. La versión incluida en este paquete contiene 9 marcas, 21 líneas/modelos, 54 versiones y 56 referencias económicas (52 referencias de usados/guías y 4 precios sugeridos de vehículos nuevos). Es una ampliación documentada, no un catálogo exhaustivo.
+
+## Requisitos
+
+- Windows 10/11.
+- Python 3.10 o superior (se recomienda Python 3.12).
+- Conexión a Internet la primera vez para instalar FastAPI, Uvicorn, Jinja2, python-dotenv, python-multipart y httpx. La aplicación y la base SQLite funcionan localmente después de la instalación; las consultas no dependen de un servicio externo de imágenes.
+
+## Inicio rápido en Windows
+
+1. Descomprime la carpeta `AutoValor_Pro_Colombia`.
+2. Instala Python 3.10+ desde [python.org](https://www.python.org/downloads/windows/) si todavía no lo tienes. Durante la instalación marca **Add Python to PATH**.
+3. Haz doble clic en `iniciar_windows.bat`. El iniciador busca tanto `py` como `python`, crea el entorno virtual y muestra un mensaje específico si algo falla.
+4. El iniciador instalará dependencias, generará `.env` con una clave de sesión y una contraseña administrativa aleatorias, preparará la base de datos y abrirá el navegador automáticamente.
+5. Si el navegador no se abre, escribe `http://127.0.0.1:5000` manualmente. Mantén abierta la ventana negra mientras uses la aplicación. Si aparece un error, no pulses una tecla para cerrarla: toma una foto del mensaje y compártela.
+6. La primera vez, guarda la contraseña del panel que aparece en la consola. También queda guardada en `.env`.
+7. Entra a **Administración de datos** para agregar versiones o importar CSV.
+
+No compartas el archivo `.env`. Para cambiar la contraseña administrativa, edita la línea `ADMIN_PASSWORD=...` en `.env` y reinicia la aplicación.
+
+## Inicio manual
+
+```powershell
+py -3 -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
+python scripts\setup_env.py
+python scripts\init_db.py
+python app.py
+```
+
+## Estructura
+
+```text
+app.py                         Servidor FastAPI y API REST
+db.py                          Inicialización y acceso a SQLite
+ valuation.py                  Motor de valoración explicable
+database/autovalor.db          Base SQLite persistente
+database/schema.sql            Esquema relacional y parámetros
+data/seed_vehicles.csv         Catálogo inicial trazable
+data/seed_prices.csv           Referencias públicas iniciales
+data/ampliacion_catalogo_oficial.csv 31 versiones candidatas basadas en fichas oficiales
+data/ampliacion_precios_oficiales.csv Precios sugeridos oficiales de vehículos nuevos
+data/plantilla_vehiculos.csv   Plantilla de importación de versiones
+data/plantilla_precios.csv     Plantilla de importación de precios
+templates/                     Interfaz pública y panel administrativo
+static/                        CSS, JavaScript e imagen local de reemplazo
+scripts/                       Configuración, inicialización, ampliación e informes
+tests/                         Pruebas automatizadas
+reports/                       Inventario, cobertura, fuentes, duplicados, pendientes y pruebas
+```
+
+## Funcionalidades implementadas
+
+- Formulario dinámico conectado a SQLite: marca → línea → año → motor/energía → transmisión → versión.
+- Listas desplegables dependientes de la base de datos: marca → línea → año → motor/energía → transmisión → versión. Los campos usan IDs internos; no aceptan texto libre como vehículo.
+- Validación de kilometraje entero no negativo, tanto en navegador como en servidor.
+- API JSON de catálogo y valoración (`/api/brands`, `/api/models`, `/api/years`, `/api/engines`, `/api/transmissions`, `/api/versions`, `/api/estimate`).
+- Estimación basada exclusivamente en la mediana de referencias recientes con estado `verificado`, de precio solicitado y correspondientes a la versión exacta. Las referencias pendientes, parciales, expiradas o rechazadas se conservan para auditoría, pero no participan en el cálculo.
+- Ajuste por kilometraje con pendiente robusta Theil–Sen cuando hay al menos cinco referencias y amplitud suficiente; de lo contrario, parámetro provisional configurable.
+- Rango orientativo solo con cinco o más referencias recientes. Menos de tres referencias: no se genera precio. Tres o cuatro: estimación preliminar sin rango.
+- Rango de kilometraje anual esperado (12.000 / 15.000 / 18.000 km por año modelo de antigüedad).
+- Panel protegido por contraseña, token CSRF, importación CSV con validación previa, copias de seguridad antes de importar, detección conservadora de duplicados, registro de auditoría, informes de cobertura y parámetros de valoración editables.
+- Historial append-only de precios: las referencias nuevas no borran las antiguas.
+- Imagen vectorial local de reemplazo; no se copian fotografías de anuncios.
+
+## API de consulta
+
+- `GET /api/health`
+- `GET /api/stats`
+- `GET /api/brands?q=chev`
+- `GET /api/models?brand_id=1&q=spark`
+- `GET /api/years?model_id=1`
+- `GET /api/engines?model_id=1&year=2018`
+- `GET /api/transmissions?model_id=1&year=2018&engine_id=4`
+- `GET /api/versions?model_id=1&year=2018&engine_id=4&transmission_id=7`
+- `POST /api/estimate` con JSON `{"version_id": 1, "mileage_km": 85000}`
+
+## Administración y CSV
+
+Abre `/admin/login`. El panel no acepta una contraseña vacía ni el valor de ejemplo `CAMBIE_...`; si `.env` no existe, el iniciador crea una clave aleatoria. La sesión usa cookies `HttpOnly`, `SameSite=Lax` y protección CSRF en operaciones POST.
+
+- Importación de vehículos: el botón **Validar CSV** no modifica SQLite; clasifica candidatos, duplicados, posibles duplicados y errores. **Importar** crea una copia de seguridad y agrega solo registros nuevos, sin sobrescribir los existentes.
+- Importación de precios: permite validar antes de escribir, exige una única versión compatible y agrega referencias al historial sin borrar las anteriores.
+- El panel ofrece informes CSV de cobertura, pendientes de verificación, versiones sin precios y posibles duplicados.
+- Las fuentes importadas deben ser HTTPS. Los precios requieren tipo, URL y fecha de observación.
+- Las plantillas se descargan desde el panel. Los archivos de ejemplo están también en la carpeta `data/`.
+
+## Ejecutar pruebas
+
+Desde la carpeta del proyecto:
+
+```powershell
+.venv\Scripts\python -m unittest discover -s tests -v
+```
+
+En Linux/macOS:
+
+```bash
+.venv/bin/python -m unittest discover -s tests -v
+```
+
+Para ampliar una base antigua existente con los CSV documentados (se crea una copia de seguridad) y regenerar los informes:
+
+```powershell
+python scripts\expand_catalog.py
+python scripts\generate_reports.py
+```
+
+Para regenerar los informes en cualquier momento también puedes ejecutar `python scripts\export_inventory.py`.
+
+## Límites conocidos
+
+1. El catálogo contiene 9 marcas, 21 líneas/modelos y 54 versiones documentadas entre años modelo 2018 y 2027. No es un censo del parque automotor colombiano ni incluye todas las generaciones o años.
+2. Las 56 referencias económicas se dividen en 52 referencias de mercado usado/guías y 4 precios sugeridos de vehículos nuevos. Los precios nuevos no se utilizan para valorar vehículos usados; la ampliación no agregó anuncios nuevos de segunda mano.
+3. Entre las 54 versiones, 28 están marcadas como técnicamente verificadas y 26 permanecen parciales. La etiqueta `verificado` significa que la configuración registrada coincide con una ficha oficial consultada; no garantiza disponibilidad comercial actual en todos los concesionarios.
+4. El registro Spark EUV se mantiene como `parcial` porque el índice del documento y el año modelo de su portada presentan una discrepancia. Las transmisiones de Ford Territory Trend y Titanium también quedan pendientes de confirmación por versión.
+5. No se han importado precios de Fasecolda. Antes de integrar esa fuente de forma masiva, se deben confirmar licencia, condiciones de acceso y autorización de uso.
+6. La pendiente empírica de kilometraje es una asociación estadística de una muestra pequeña de anuncios. No demuestra causalidad, no evalúa el estado mecánico y no equivale a una tasa oficial de depreciación.
+7. El prototipo es local. No debe exponerse directamente a Internet sin despliegue con HTTPS, gestión segura de secretos, limitación de intentos, copias de seguridad y revisión de seguridad.
+8. Las imágenes específicas por versión no se descargaron porque no se verificó una licencia de reutilización. La consulta funciona con la imagen local de reemplazo.
+
+## Fuentes de consulta documentadas
+
+- Guía de Valores de Fasecolda: https://www.fasecolda.com/fasecolda-guia-de-valores/centro-de-ayuda/preguntas-frecuentes/
+- Términos de Guía de Valores API: https://www.guiadevalores.com/terminos/
+- Las URL de cada anuncio utilizado como referencia se conservan en `price_references.source_url` y en `data/seed_prices.csv`.
+
+**Uso responsable:** revisa los términos vigentes de cada proveedor antes de importar, reproducir o redistribuir sus datos. No se implementó scraping automático ni se simularon credenciales/API.
+
+### Corrección del inicio en Windows
+
+La versión corregida declara explícitamente `itsdangerous==2.2.0`, dependencia que necesita `SessionMiddleware` de Starlette para manejar las sesiones del panel administrativo. Si ya habías instalado una versión anterior, vuelve a ejecutar `iniciar_windows.bat` desde esta carpeta para que pip instale la dependencia faltante.

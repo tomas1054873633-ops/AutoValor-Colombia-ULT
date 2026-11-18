@@ -1,0 +1,18 @@
+{% import "partials/marca.html" as marca %}<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="/static/img/icono-autovalor.svg"><title>Acceso administrativo | AutoValor Pro</title><link rel="stylesheet" href="/static/css/fonts.css"><link rel="stylesheet" href="/static/css/style.css"></head>
+<body class="admin-body">
+  {{ marca.sprite() }}
+  <header class="topbar"><a class="brand-lockup" href="/">{{ marca.logo(label="AutoValor Colombia") }}<span><strong>Panel administrativo</strong><small>ADMINISTRACIÓN DE DATOS</small></span></a><a class="admin-link" href="/">Volver a consulta</a></header>
+  <main class="admin-login-wrap">
+    <section class="panel login-panel">
+      <p class="eyebrow">ACCESO RESTRINGIDO</p><h1>Panel administrativo</h1>
+      <p class="section-intro">Gestiona el catálogo y las referencias de precio. El acceso está protegido por contraseña configurada localmente.</p>
+      {% if messages %}<div class="flash-stack">{% for item in messages %}<div class="flash {{ item.category }}">{{ item.message }}</div>{% endfor %}</div>{% endif %}
+      {% if not configured %}<div class="notice-card"><div class="notice-title"><span>!</span> Configuración necesaria</div><p>Crea o edita el archivo <code>.env</code> y cambia <code>ADMIN_PASSWORD</code> por una contraseña segura. Reinicia la aplicación antes de iniciar sesión.</p></div>{% endif %}
+      <form method="post" action="/admin/login" class="login-form"><label for="password">Contraseña administrativa</label><input id="password" name="password" type="password" autocomplete="current-password" required><button class="button-primary" type="submit" {% if not configured %}disabled{% endif %}>ENTRAR AL PANEL <span>↗</span></button></form>
+      <p class="small-muted">No publiques esta aplicación en Internet sin cambiar las claves y configurar HTTPS.</p>
+    </section>
+  </main>
+</body>
+</html>
